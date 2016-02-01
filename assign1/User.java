@@ -208,6 +208,13 @@ public class User
     public void removeBroadcastList(String broadcastNickname) throws WhatsAppException
     {
         //TODO
+        Iterator iter = this.broadcastLists.iterator();
+        BroadcastList tmp;
+        while(iter.hasNext()){
+            tmp = iter.next();
+            if(tmp.getNickname().equals(broadcastNickname))
+                iter.remove();
+        }
     }
 
     /**

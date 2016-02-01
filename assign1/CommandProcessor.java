@@ -55,6 +55,7 @@ public class CommandProcessor
     {
         //TODO
         CONFIG.getConsoleOutput().printf(Config.SUCCESSFULLY_LOGGED_OUT);
+        Config.setCurrentUser(null);
     }
 
     /**
@@ -329,6 +330,33 @@ public class CommandProcessor
             String bcastNickname) throws WhatsAppException
     {
         //TODO
+        Iterator iter = Config.getCurrentUser().getBroadcastLists();
+        BroadcastList tmp;
+        List<String> tmpList;
+        Iterator element;
+        String current;
+        boolean exist = false;
+        boolean found = false;
+        while(iter.hasNext() && !found){
+            tmp = iter.next();//tmp is each broadcastlist
+            if(tmp.getNickname().equals(bcastNickname)){
+                exist = true;
+                element = tmp.getMembers().iterator();
+                while(element.hasNext()){
+                    current = element.next();//current is each name on the list
+                    if(current.equals(friendNickname)) {
+                        element.remove();
+                        found = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if(exist && !found){
+            throw WhatsAppExeception(Config.NOT_PART_OF_BCASt_LIST);
+        }
+        if(!exist)
+            throw WhatsAppExeception(Config.BCAST_LIST_DOES_NOT_EXIST);
     }
 
     /**
@@ -344,6 +372,8 @@ public class CommandProcessor
     public static void removeBroadcastcast(String nickname) throws WhatsAppException
     {
         //TODO
+        User currentUser = Config.getCurrentUser();
+        currentUser.removeBroadcastList(nickname);
     }
 
     /**
