@@ -54,6 +54,7 @@ public class CommandProcessor
     public static void doLogout()
     {
         //TODO
+        CONFIG.getConsoleOutput().printf(Config.SUCCESSFULLY_LOGGED_OUT);
     }
 
     /**
@@ -62,7 +63,7 @@ public class CommandProcessor
      *
      * @param nickname - can be a friend or broadcast list nickname
      * @param message - message to send
-     * @throws WhatsAppRuntimeException simply pass this untouched from the
+     * @throws WhatsAppRuntimeException simply pass this untouched from thead
      * constructor of the Message class
      * @throws WhatsAppException throw this with one of CANT_SEND_YOURSELF,
      * NICKNAME_DOES_NOT_EXIST messages
@@ -70,6 +71,69 @@ public class CommandProcessor
     public static void sendMessage(String nickname, String message) throws WhatsAppRuntimeException, WhatsAppException
     {
         //TODO
+        if(nickname.equals(CONFIG.getCurrentUser()))
+            throw WhatsAppException(CANT_SEND_YOURSELF);
+        User user = CONFIG.getCurrentUser();
+        Iterator currentList = user.getBroadcastLists().iterator();
+        Iterator currentFriend = user.getFriends().iterator;
+        List<Message> tmpMessages;
+        User tmpFriend;
+        BroadcastList tmpList;
+        boolean notBroadcast = true;
+        boolean valid = false;
+        while(currentFriend.hasNext()){
+            tmpFriend = currentFriend.next();
+            if(tmpFriend.getNickname().equals(nickname)){
+                valid = true;
+                break;
+            }
+        }
+        while(currentList.hasNext()){
+            tmpList = currentList.next();
+            if(tmpList.getNickname().equals(nickname)){
+                valid = true;
+                notBroadcast = false;
+                break;
+            }
+        }
+        if(!valid){
+            throw WhatsAppException(NICKNAME_DOES_NOT_EXIST);
+        }
+        if(notBroadcast){
+            // send to friend
+            // add to sender
+            tmpMessages = user.getMessages();
+            Message tmp(user.getNickname(), tmpFriend.getNickname(), null,
+                    System.currentTimeMillis(), message, true);
+            tmpMessages.add(tmp);
+            // add to receiver
+            tmpMessages = tmpFriend.getMessages();
+            Message tmp(user.getNickname(), tmpFriend.getNickname(), null,
+                    System.currentTimeMillis(), message, false);
+            tmpMessages.add(tmp);
+//            public Message(String fromNickname, String toNickname, String broadcastNickname,
+//                    Date sentTime, String message, boolean read)
+        }
+        else{
+            //send to broadcast
+            //add to sender
+            tmpMessages = user.getMessages();
+            Message tmp(user.getNickname(), null, tmpList.getNickname(),
+                    System.currentTimeMillis(), message, true);
+            tmpMessages.add(tmp);
+            // add to the group of senders
+
+            Iterator membersIterator = tmpList.getMembers().iterator();
+            User tmpUser;
+            while(membersIterator.hasNext()){
+                tmpUser = membersIterator.next();
+                tmpMessages = tmpUser.getMessages();
+                Message tmp(user.getNickname(), tmpUser.getNickname(), null,
+                        System.currentTimeMillis(), message, false);
+                tmpMessages.add(tmp);
+            }
+        }
+
     }
 
     /**
@@ -85,6 +149,48 @@ public class CommandProcessor
     public static void readMessage(String nickname, boolean enforceUnread)
     {
         //TODO
+        if(nickname != null) {
+            User tmpUser= Config.getCurrentUser();
+            Iterator currentMessages = tmpUser.getMessages().iterator();
+            Message tmp;
+            boolean isValid = false;
+            while (currentMessages.hasNext()) {
+                tmp = currentMessages.next();
+                if (enforceUnread && tmp.isRead)
+                    continue;
+                if(!tmp.getFromNickname.equals(nickname))
+                    continue;
+                isValid = true;
+                CONFIG.getConsoleOutput.printf(Config.MESSAGE_FORMAT, tmp.getFromNickname(), tmp.getToNickname(),
+                        tmp.getMessage(), tmp.getSentTime());
+            }
+            if (!isValid) {
+                CONFIG.getConsoleOutput.printf(NO_MESSAGES);
+            }
+        }
+        else{
+            Iterator xUser = Config.getAllUsers.iterator();
+            while(xUser.hasNext()) {
+                User tmpUser = xUser.next();
+                Iterator currentMessages = tmpUser.getMessages().iterator();
+                Message tmp;
+                boolean isValid = false;
+                while (currentMessages.hasNext()) {
+                    tmp = currentMessages.next();
+                    if (enforceUnread && tmp.isRead)
+                        continue;
+                    if(!tmp.getFromNickname.equals(nickname))
+                        continue;
+                    isValid = true;
+                    CONFIG.getConsoleOutput.printf(Config.MESSAGE_FORMAT, tmp.getFromNickname(), tmp.getToNickname(),
+                            tmp.getMessage(), tmp.getSentTime());
+                }
+                if (!isValid) {
+                    CONFIG.getConsoleOutput.printf(NO_MESSAGES);
+                }
+            }
+        }
+
     }
 
     /**
@@ -100,6 +206,26 @@ public class CommandProcessor
     public static void search(String word, boolean searchByFirstName)
     {
         //TODO
+        User currentUser = Config.getCurrentUser();
+        if(searchByFirstName) {
+            Iterator iter = Config.getAllUsers.iterator();
+            while (iter.hasNext()) {
+                User tmpUser = iter.next();
+                String judge = "no";
+                if (tmpUser.getFirstName().indexOf(word) != -1){//tmpUser is a result
+                    String identifier = tmpUser.getNickname();
+                    //check if is a friend
+                    Iterator tmp = currentUser.getFriends.iterator();
+                    while(tmp.hasNext()){
+                        User tmptmp = tmp.next();
+                        if(tmptmp.getNickname().equals(identifier))
+                            judge = "yes";
+                    }
+                    CONFIG.getConsoleOutput.printf(Config.USER_DISPLAY_FOR_SEARCH, tmpUser.getLastName(), tmpUser.getLastName(),
+                            tmpUser.getNickname, judge);
+                }
+            }
+        }
     }
 
     /**
@@ -113,6 +239,23 @@ public class CommandProcessor
     public static void addFriend(String nickname) throws WhatsAppException
     {
        //TODO
+        User currentUser = Config.getCurrentUser();
+        Iterator iter = Config.getAllUsers().iterator();
+        User tmp;
+        boolean valid = false;
+        if(currentUser.getNickname().equals(nickname))
+            throw(WhatsAppException(Config.CANT_BE_OWN_FRIEND));
+        while(iter.hasNext()){
+            tmp = iter.next();
+            if(tmp.getNickname().equals(nickname)) {
+                currentUser.addFriend(tmp);
+                valid = true;
+                break;
+            }
+        }
+        if(!valid){
+            throw(WhatsAppException(Config.CANT_LOCATE));
+        }
     }
 
     /**

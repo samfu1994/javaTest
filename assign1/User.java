@@ -278,9 +278,17 @@ public class User
      * friend of this user), CANT_LOCATE (if the supplied nickname is not even
      * an existing global contact)
      */
-    public void addFriend(String nickname) throws WhatsAppException
+    public void addFriend(User nickname) throws WhatsAppException
     {
-        //TODO        
+        //TODO
+        Iterator iter = this.friends.iterator();
+        User tmp;
+        while(iter.hasNext()){
+            tmp = iter.next();
+            if(tmp.getNickname().equals(nickname.getNickname()))
+                throw WhatsAppException(Config.ALREADY_A_FRIEND);
+        }
+        this.friends.add(nickname);
     }
 
     /**

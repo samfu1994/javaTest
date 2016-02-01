@@ -9,9 +9,13 @@ import java.util.List;
  */
 public class BroadcastList
 {
+    //bcast,rdixon,"work people",rdixwp,preed,afisher,lday
 
     //TODO: Add class fields here
-
+    List<String> Members;
+//    String Username;
+//    String Description;
+    String Nickname;
     /**
      * Constructs a new instance of this class. nickname cannot be null or
      * empty. members cannot be null.
@@ -25,6 +29,11 @@ public class BroadcastList
      */
     public BroadcastList(String nickname, List<String> members) throws WhatsAppRuntimeException
     {
+        if(nickname.equals(null) || nickname.isEmpty() || members == null){
+            throw WhatsAppRuntimeException;
+        }
+        this.Nickname = nickname;
+        this.Members = members;
         //TODO
     }
 
@@ -35,8 +44,7 @@ public class BroadcastList
      */
     public String getNickname()
     {
-        //TODO
-        return null;
+        return Nickname;
     }
 
     /**
@@ -46,6 +54,7 @@ public class BroadcastList
      */
     public void setNickname(String nickname)
     {
+        this.Nickname = nickname;
         //TODO
     }
 
@@ -57,7 +66,7 @@ public class BroadcastList
     public List<String> getMembers()
     {
         //TODO
-        return null;
+        return Members;
     }
 
     /**
@@ -68,6 +77,7 @@ public class BroadcastList
     public void setMembers(List<String> members)
     {
         //TODO
+        this.Members = members;
     }
 
 }
